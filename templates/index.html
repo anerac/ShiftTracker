@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container{
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .main-content{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .smjene  {
+            display: flex;
+            align-items: center;
+            margin: 3px;
+        }
+        .shift-button  {
+            width: 200px;
+            padding: 14px;
+            border: 1px solid;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .smjene p   {
+            margin: 10px;
+        }
+        .arhiva  {
+            display: flex;
+            gap: 10px;
+            margin-top: 50px;
+        }
+        .nav-button{
+            font-size: 14px;
+            font-family: inherit;
+            text-decoration: none;
+            color: black;
+        }
+        .nav-separator {
+            border-right: 1px solid;
+            padding-right: 10px;
+        }
+        .trajanje {
+            text-align: center;
+            width: 180px;
+            margin: 10px;
+        }
+        .logout-button {
+            font-family: inherit;
+            font-size: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header class="top-bar">
+            <form action="{{ url_for('logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="logout-button" type="submit">ODJAVA</button>
+            </form>
+        </header>
+
+        <main class="main-content">
+            {% for poruka in get_flashed_messages() %}
+                <p>{{ poruka }}</p>
+            {% endfor %}
+
+            <h1>Pozdrav, {{ user }}!</h1>
+
+            <div class="smjene">
+                <form action="{{ url_for('start_shift') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="timezone" id="timezone">
+                    <button class="shift-button">POČETAK SMJENE</button>
+                </form>
+                {% if pocetak %}
+                    <p>Početak: {{ pocetak }}</p>
+                {% endif %}
+            </div>
+
+            <div class="smjene">
+                <form action="{{ url_for('end_shift') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="shift-button">KRAJ SMJENE</button>
+                </form>
+                {% if kraj %}
+                    <p>Kraj: {{ kraj }}&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                {% endif %}
+            </div>
+
+            {% if kraj %}
+                <p class="trajanje">Trajanje: {{ sati }}h i {{ minute }}min</p>
+            {% endif %}
+
+            <div class="arhiva">
+                <span class="nav-button nav-separator" type="button">Pregled dana</span>
+                <a class="nav-button" href="{{ url_for('history') }}">Povijest zapisa</a>
+            </div>
+
+            <script>
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                document.getElementById('timezone').value = timezone;
+            </script>
+
+        </main>
+    </div>
+</body>
+</html>

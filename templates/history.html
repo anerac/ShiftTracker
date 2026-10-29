@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Povijest smjena</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .back-button {
+            font-family: inherit;
+            font-size: 12px;
+            text-decoration: none;
+            color: black;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .shift-card {
+            width: 85%;
+            border: 1px solid;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .shift-date {
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .shift-times {
+            font-size: 15px;
+            display: flex;
+            gap: 30px;
+        }
+        .shift-duration {
+            font-size: 15px;
+        }
+        .note-form {
+            display: none;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+        .note-form textarea {
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .note-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 15px;
+        }
+        .note-button {
+            font-family: inherit;
+            font-size: 12px;
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .show-more-button {
+            font-family: inherit;
+            font-size: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            text-decoration: underline;
+        }
+        .end-date{
+            display: block;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header class="top-bar">
+            <a class="back-button" href="{{ url_for('index') }}">NATRAG</a>
+        </header>
+
+        <main class="main-content">
+            <h1>Povijest smjena</h1>
+
+            {% for poruka in get_flashed_messages() %}
+                <p>{{ poruka }}</p>
+            {% endfor %}
+
+            {% if smjene %}
+                {% for smjena in smjene %}
+                    <div class="shift-card">
+
+                        <p class="shift-date">{{ smjena.dan }}, {{ smjena.datum }}</p>
+
+                        <div class="shift-times">
+                            <div>
+                                <span>POČETAK: {{ smjena.pocetak }}</span>
+                            </div>
+
+                            <div>
+                                <span>KRAJ: {{ smjena.kraj }}</span>
+                                {% if not smjena.isti_dan %}
+                                    <span class="end-date">{{ smjena.dan_kraja }}, {{ smjena.datum_kraja }}</span>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                        <p class="shift-duration">Trajanje: {{ smjena.sati }}h i {{ smjena.minute }}min</p>
+
+                        <div class="note-display">
+                            {% if smjena.biljeska %}
+                                <p>BILJEŠKA: {{ smjena.biljeska }}</p>
+                                <button class="note-button edit-note-button" type="button">Uredi</button>
+                            {% else %}
+                                <p>Nema bilješke.</p>
+                                <button class="note-button edit-note-button" type="button">Dodaj</button>
+                            {% endif %}
+                        </div>
+
+                        <form class="note-form" action="{{ url_for('spremi_note', id_smjene=smjena.id) }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <textarea name="biljeska">{{ smjena.biljeska if smjena.biljeska else '' }}</textarea>
+                            <button class="note-button" type="submit">Spremi</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            <button class="show-more-button" type="button">PRIKAŽI VIŠE</button>
+            {% else %}
+                <p>Nema završenih smjena!</p>
+            {% endif %}
+        </main>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll('.edit-note-button');
+        buttons.forEach(function(button) {
+            button.addEventListener('click', function(){
+                const card = button.closest('.shift-card');
+                const form = card.querySelector('.note-form');
+                const display = card.querySelector('.note-display');
+                form.style.display = 'flex';
+                display.style.display = 'none';
+            });
+        });
+
+        const cards = document.querySelectorAll('.shift-card');
+        cards.forEach(function(card, index) {
+            if (index >= 5) {
+                card.style.display = 'none';
+            }
+        });
+
+        const showMoreButton = document.querySelector('.show-more-button');
+        if (cards.length <= 5) {
+            showMoreButton.style.display = 'none';
+        }
+        showMoreButton.addEventListener('click', function() {
+            cards.forEach(function(card, index) {
+                if (index >= 5) {
+                    card.style.display = 'block';
+                }
+            });
+            showMoreButton.style.display = 'none'
+        });
+    </script>
+</body>
+</html>
