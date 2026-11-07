@@ -172,7 +172,7 @@ def test_krivi_password(client):
     with client.session_transaction() as session:
         assert 'user_id' not in session
     html = response.get_data(as_text=True)
-    assert 'Pogresan username ili lozinka!' in html
+    assert 'Pogrešno korisničko ime ili lozinka!' in html
 
 def test_logout(client):
     password_hash = generate_password_hash('jaja')
@@ -210,7 +210,7 @@ def test_multi_user_izolacija(client):
     )
     response = client.get('/history')
     html = response.get_data(as_text=True)
-    assert 'Nema zavrsenih smjena!' in html
+    assert 'Nema završenih smjena!' in html
     client.post(
         '/login',
         data={

@@ -157,7 +157,7 @@ def history():
         'Ponedjeljak',
         'Utorak',
         'Srijeda',
-        'Cetvrtak',
+        'Četvrtak',
         'Petak',
         'Subota',
         'Nedjelja'

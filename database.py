@@ -4,8 +4,11 @@ import os
 
 
 dir_path = os.path.dirname(__file__)
-DATABASE = os.path.join(dir_path, 'shifttracker.db')
 
+DATABASE = os.environ.get(
+    'DATABASE_PATH',
+    os.path.join(dir_path, 'shifttracker.db')
+)
 
 # Funkcija spajanja na bazu podataka
 def spoji_na_bazu():
